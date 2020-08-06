@@ -6,6 +6,7 @@ from detectron2.utils.logger import setup_logger
 setup_logger()
 
 # import some common libraries
+import itertools
 import numpy as np
 import os, json, cv2, random
 # from google.colab.patches import cv2_imshow
@@ -76,7 +77,7 @@ def test():
         img = cv2.imread(d["file_name"])
         visualizer = Visualizer(img[:, :, ::-1], metadata=anime_face_metadata, scale=0.5)
         out = visualizer.draw_dataset_dict(d)
-        cv2.imwrite(d["file_name"]+".jpg", out.get_image()[:, :, ::-1])
+        cv2.imwrite(d["file_name"].split("/")[-1], out.get_image()[:, :, ::-1])
 
 def register_dataset_detectron2():
 
@@ -86,7 +87,7 @@ def register_dataset_detectron2():
     for d in ["train", "val"]:
         DatasetCatalog.register("anime_face_" + d, lambda d=d: face_dataset_dicts(os.path.join(img_dir, d), os.path.join(annot_dir, d+".json")))
         MetadataCatalog.get("anime_face_" + d).set(thing_classes=["face"])
-    test()
+    #test()
 
 
 if __name__ == "__main__":
