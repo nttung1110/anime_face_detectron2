@@ -62,6 +62,15 @@ def main(count_limit):
     # processed each xml
     all_annot = {}
 
+    l_train_val_id_path = "../list_split_id/trainval.txt"
+    l_test_id_path = "../list_split_id/test.txt"
+
+    with open(l_train_val_id_path, "r") as f:
+        list_tv = f.read().split()
+
+    with open(l_test_id_path, "r") as f:
+        list_test = f.read().split()
+
     for xml_file in os.listdir(path_anno_data):
         if xml_file.endswith(".xml"):
             print("Count:", count+1)

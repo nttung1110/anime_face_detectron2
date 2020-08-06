@@ -17,13 +17,11 @@ from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 
-project_dir = "../data"
 
-def face_dataset_dicts(img_dir):
+def face_dataset_dicts(img_dir, annot_file):
     dataset_dicts = []
-    json_file = os.path.join(project_dir, "annot_all", "annot_all.json")
 
-    with open(json_file) as f:
+    with open(annot_file) as f:
         imgs_anns = json.load(f)
 
     dataset_dicts = []
@@ -69,8 +67,10 @@ def face_dataset_dicts(img_dir):
     return dataset_dicts
 
 def test():
+    img_dir = "../data/face_dataset/train"
+    annot_dir = "../data/annot_all/train.json"
 
-    dataset_dicts = face_dataset_dicts()
+    dataset_dicts = face_dataset_dicts(img_dir, annot_dir)
     anime_face_metadata = MetadataCatalog.get("anime_face_train")
     for d in random.sample(dataset_dicts, 3):
         img = cv2.imread(d["file_name"])
@@ -81,8 +81,10 @@ def test():
 def register_dataset_detectron2():
 
     img_dir = "../data/face_dataset"
+    annot_dir = "../data/annot_all"
+    
     for d in ["train", "val"]:
-        DatasetCatalog.register("anime_face_" + d, lambda d=d: face_dataset_dicts(os.path.join(img_dir, d)))
+        DatasetCatalog.register("anime_face_" + d, lambda d=d: face_dataset_dicts(os.path.join(img_dir, d), os.path.join(annot_dir, d+".json")))
         MetadataCatalog.get("anime_face_" + d).set(thing_classes=["face"])
     test()
 
