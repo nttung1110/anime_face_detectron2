@@ -52,8 +52,8 @@ def face_dataset_dicts(img_dir, project_dir):
 
 def register_dataset_detectron2():
 
-    project_dir = "../VOCdevkit2007/VOC2007"
-    img_dir = "../VOCdevkit2007/VOC2007/face_dataset"
+    project_dir = "../data"
+    img_dir = "../data/face_dataset"
 
     for d in ["train", "val"]:
         DatasetCatalog.register("anime_face_" + d, lambda d=d: face_dataset_dicts(os.path.join(img_dir, d), project_dir))
