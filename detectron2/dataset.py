@@ -18,9 +18,8 @@ from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 
 project_dir = "../data"
-img_dir = "../data/face_dataset"
 
-def face_dataset_dicts():
+def face_dataset_dicts(img_dir):
     dataset_dicts = []
     json_file = os.path.join(project_dir, "annot_all", "annot_all.json")
 
@@ -67,6 +66,7 @@ def face_dataset_dicts():
 
         record["annotations"] = objs
         dataset_dicts.append(record)
+    return dataset_dicts
 
 def test():
 
@@ -80,10 +80,10 @@ def test():
 
 def register_dataset_detectron2():
 
+    img_dir = "../data/face_dataset"
     for d in ["train", "val"]:
-        DatasetCatalog.register("anime_face_" + d, lambda d=d: face_dataset_dicts()
+        DatasetCatalog.register("anime_face_" + d, lambda d=d: face_dataset_dicts(os.path.join(img_dir, d)))
         MetadataCatalog.get("anime_face_" + d).set(thing_classes=["face"])
-
     test()
 
 
