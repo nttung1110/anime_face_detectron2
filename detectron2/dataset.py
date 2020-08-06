@@ -1,6 +1,21 @@
-import numpy as np
-import os 
+
 from detectron2.structures import BoxMode
+
+import detectron2
+from detectron2.utils.logger import setup_logger
+setup_logger()
+
+# import some common libraries
+import numpy as np
+import os, json, cv2, random
+# from google.colab.patches import cv2_imshow
+
+# import some common detectron2 utilities
+from detectron2 import model_zoo
+from detectron2.engine import DefaultPredictor
+from detectron2.config import get_cfg
+from detectron2.utils.visualizer import Visualizer
+from detectron2.data import MetadataCatalog, DatasetCatalog
 
 def face_dataset_dicts(img_dir, project_dir):
     dataset_dicts = []
@@ -61,7 +76,5 @@ def register_dataset_detectron2():
 
 
 if __name__ == "__main__":
-    a = {"a":1, "b":2, "c":3} 
-    for idx, val in enumerate(a.keys()):
-        print(val)  
+    register_dataset_detectron2()
     
