@@ -2,3 +2,8 @@ data/
 data.rar
 data.zip
 server_vis
+*.jpg
+*.rar
+test_data
+output
+__pycache__
