@@ -20,6 +20,9 @@ from detectron2.data import MetadataCatalog, DatasetCatalog
 
 
 def face_dataset_dicts(img_dir, annot_file):
+    '''
+        Prepare dataset for registering to detectron custom data
+    '''
     dataset_dicts = []
 
     with open(annot_file) as f:
@@ -68,6 +71,9 @@ def face_dataset_dicts(img_dir, annot_file):
     return dataset_dicts
 
 def test():
+    '''
+        Only served for checking whether the data has been properly prepared
+    '''
     img_dir = "../data/face_dataset/train"
     annot_dir = "../data/annot_all/train.json"
 
@@ -87,6 +93,7 @@ def register_dataset_detectron2():
     for d in ["train", "val"]:
         DatasetCatalog.register("anime_face_" + d, lambda d=d: face_dataset_dicts(os.path.join(img_dir, d), os.path.join(annot_dir, d+".json")))
         MetadataCatalog.get("anime_face_" + d).set(thing_classes=["face"])
+    
     #test()
 
 

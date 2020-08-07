@@ -7,3 +7,5 @@ server_vis
 test_data
 output
 __pycache__
+HOR_DATA/
+detectron2/train_anime_face.pyc

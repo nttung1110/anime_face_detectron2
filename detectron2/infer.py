@@ -2,6 +2,8 @@ import os
 import train_anime_face
 from train_anime_face import my_cfg
 import cv2
+import PIL
+import numpy as np
 import random
 from detectron2.utils.visualizer import Visualizer
 from detectron2.engine import DefaultPredictor
@@ -11,42 +13,43 @@ from detectron2.data import MetadataCatalog, DatasetCatalog
 
 
 from detectron2.utils.visualizer import ColorMode
-def infer(predictor):
-    img_dir = "../data/face_dataset/test"
-    annot_dir = "../data/annot_all/test.json"
 
-    dataset_dicts = face_dataset_dicts(img_dir, annot_dir)
-    anime_face_metadata = MetadataCatalog.get("anime_face_test")
+def visualize_bbox(img, bbox):
+    if bbox != None:
+        xmin, ymin, xmax, ymax = int(bbox[0]), int(bbox[1]), int(bbox[2]), int(bbox[3])
+        img = cv2.rectangle(img, (xmin, ymin), (xmax, ymax), (255, 0, 0), thickness=2)
+    return img
 
-    # for d in random.sample(dataset_dicts, 3):    
-    #     im = cv2.imread(d["file_name"])
-    #     outputs = predictor(im)
-    #     v = Visualizer(im[:, :, ::-1],
-    #                 metadata=anime_face_metadata, 
-    #                 scale=0.5, 
-    #                 instance_mode=ColorMode.IMAGE_BW   # remove the colors of unsegmented pixels. This option is only available for segmentation models
-    #     )
-    #     out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-    #     cv2.imwrite("test_result/"+d["file_name"].split("/")[-1], out.get_image()[:, :, ::-1])
+def makedir(path):
+    if not os.path.isdir(path):
+        os.mkdir(path)
+
+def infer_folder(predictor, source_folder, des_folder):
+    print("Processing folder ", source_folder)
 
     # test HOR data hor02_056
-    for file_name in os.listdir("test_data"):
-        if file_name.endswith(".jpg"):
-            full_path = os.path.join("test_data", file_name)
-            img = cv2.imread(full_path)
+    makedir(des_folder)
+    for file_name in os.listdir(source_folder):
+        if file_name.endswith(".tga") or file_name.endswith(".jpg"):
+            full_path = os.path.join(source_folder, file_name)
+            img = cv2.cvtColor(np.array(PIL.Image.open(full_path)), cv2.COLOR_RGB2BGR)
             outputs = predictor(img)
-            print(outputs["instances"])
-            v = Visualizer(img[:, :, ::-1],
-                            metadata=anime_face_metadata, 
-                            scale=0.5, 
-                            instance_mode=ColorMode.IMAGE_BW   # remove the colors of unsegmented pixels. This option is only available for segmentation models
-                )
-            out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-            cv2.imwrite("test_result/"+file_name, out.get_image()[:, :, ::-1])
+
+            num_instance = len(outputs["instances"])
+            out_img_path = os.path.join(des_folder, file_name[:-4]+".jpg")
+            if num_instance == 0:
+                # visualize without bbox
+                img = visualize_bbox(img, None)
+                
+            else:    
+                bbox = outputs["instances"].get("pred_boxes").tensor[0]
+                img = visualize_bbox(img, bbox)
+            cv2.imwrite(out_img_path, img)
+
+            
 
 def main():
     # register first
-    register_dataset_detectron2()
 
     cfg = my_cfg()
 
@@ -55,7 +58,29 @@ def main():
     cfg.DATASETS.TEST = ("anime_face_test", )
     predictor = DefaultPredictor(cfg)
 
-    infer(predictor)
+    # # HOR01
+    path_HOR01 = "../HOR_DATA/HOR01_Full_Formated"
+    out_path_HOR01 = "../HOR_DATA/result_HOR01"
+    for sub_folder in os.listdir(path_HOR01):
+        source_path = os.path.join(path_HOR01, sub_folder, "color")
+        if not os.path.isdir(source_path):
+            continue
+        des_path = os.path.join(out_path_HOR01, sub_folder)
+
+        infer_folder(predictor, source_path, des_path)
+
+    # HOR02
+    path_HOR02 = "../HOR_DATA/HOR02_Full_Formated"
+    out_path_HOR02 = "../HOR_DATA/result_HOR02"
+
+    for sub_folder in os.listdir(path_HOR02):
+        source_path = os.path.join(path_HOR02, sub_folder, "color")
+        if not os.path.isdir(source_path):
+            continue
+        des_path = os.path.join(out_path_HOR02, sub_folder)
+
+        infer_folder(predictor, source_path, des_path)
+    # infer_folder(predictor, "test_data", "test_result")
 
 if __name__ == "__main__":
     main()
